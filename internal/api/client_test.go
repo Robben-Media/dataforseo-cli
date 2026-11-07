@@ -30,7 +30,7 @@ func TestPost_Success(t *testing.T) {
 				{
 					"result": []map[string]any{
 						{
-							"keyword": "seo tools",
+							"keyword":       "seo tools",
 							"search_volume": 12000,
 						},
 					},

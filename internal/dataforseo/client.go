@@ -3,10 +3,16 @@ package dataforseo
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/builtbyrobben/dataforseo-cli/internal/api"
+)
+
+var (
+	errNoTasks = errors.New("no tasks in response")
+	errTask    = errors.New("task error")
 )
 
 // Client wraps the REST API client with DataForSEO-specific methods.
@@ -30,12 +36,12 @@ func NewClient(authBase64 string, opts ...api.ClientOption) *Client {
 
 func (c *Client) unwrapResult(resp *TaskResponse) ([]TaskResult, error) {
 	if len(resp.Tasks) == 0 {
-		return nil, fmt.Errorf("no tasks in response")
+		return nil, errNoTasks
 	}
 
 	task := resp.Tasks[0]
 	if task.StatusCode != 20000 {
-		return nil, fmt.Errorf("task error (%d): %s", task.StatusCode, task.StatusMessage)
+		return nil, fmt.Errorf("%w (%d): %s", errTask, task.StatusCode, task.StatusMessage)
 	}
 
 	return task.Result, nil
@@ -322,27 +328,27 @@ func extractPAAItems(results []TaskResult) ([]PAAItem, error) {
 
 			for _, sub := range parsed.Items {
 				items = append(items, PAAItem{
-					Type:        sub.Type,
-					RankGroup:   parsed.RankGroup,
+					Type:         sub.Type,
+					RankGroup:    parsed.RankGroup,
 					RankAbsolute: parsed.RankAbsolute,
-					Position:    parsed.Position,
-					Title:       sub.Title,
-					URL:         sub.URL,
-					Domain:      sub.Domain,
-					Description: sub.Description,
+					Position:     parsed.Position,
+					Title:        sub.Title,
+					URL:          sub.URL,
+					Domain:       sub.Domain,
+					Description:  sub.Description,
 				})
 			}
 
 			if len(parsed.Items) == 0 {
 				items = append(items, PAAItem{
-					Type:        parsed.Type,
-					RankGroup:   parsed.RankGroup,
+					Type:         parsed.Type,
+					RankGroup:    parsed.RankGroup,
 					RankAbsolute: parsed.RankAbsolute,
-					Position:    parsed.Position,
-					Title:       parsed.Title,
-					URL:         parsed.URL,
-					Domain:      parsed.Domain,
-					Description: parsed.Description,
+					Position:     parsed.Position,
+					Title:        parsed.Title,
+					URL:          parsed.URL,
+					Domain:       parsed.Domain,
+					Description:  parsed.Description,
 				})
 			}
 		}
