@@ -77,6 +77,7 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	}
 
 	var bodyReader io.Reader
+
 	if body != nil {
 		bodyBytes, err := json.Marshal(body)
 		if err != nil {
